@@ -1,6 +1,7 @@
 package getenv
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -77,13 +78,27 @@ func (l *Loader) loadFile() (string, error) {
 
 	path := filepath.Join(wd, l.Platform)
 
-	data, err := os.ReadFile(path)
+	file, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return "", nil
 		}
-		return "", fmt.Errorf("failed to read .env file")
+		return "", fmt.Errorf("failed to open file: %s: %w", path, err)
+	}
+	defer file.Close()
+
+	var builder strings.Builder
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		builder.WriteString(scanner.Text())
+		builder.WriteString("\n")
 	}
 
-	return string(data), nil
+	err = scanner.Err()
+	if err != nil {
+		return "", fmt.Errorf("failed to read file: %s: %w", path, err)
+	}
+
+	return builder.String(), nil
 }
