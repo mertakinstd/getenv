@@ -10,10 +10,17 @@ import (
 
 type Loader struct {
 	Platform string
+	Update   bool
 }
 
-func Load() *Loader {
-	return &Loader{}
+const (
+	Platform = iota
+)
+
+func Load(update bool) *Loader {
+	return &Loader{
+		Update: update,
+	}
 }
 
 func (l *Loader) Default() error {
@@ -57,7 +64,12 @@ func (l *Loader) load() error {
 
 		lookup, exists := os.LookupEnv(key)
 		if exists && lookup != "" {
-			fmt.Printf("Environment variable %s already set to %s, skipping\n", key, lookup)
+			if lookup != value && l.Update {
+				fmt.Printf("Environment variable for %s is changed from %s to %s\n", key, lookup, value)
+				os.Setenv(key, value)
+			} else {
+				fmt.Printf("Environment variable %s already set to %s, skipping\n", key, lookup)
+			}
 			continue
 		}
 

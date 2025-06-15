@@ -12,6 +12,7 @@ A simple environment variables loader for Go that loads environment variables fr
 - Automatic variable reference resolution (`${VAR}`)
 - Preserves existing environment variables
 - Comment line support (`#`)
+- Dynamic update for existing variables
 
 ## Installation
 
@@ -28,15 +29,16 @@ import "github.com/mertakinstd/getenv"
 
 func main() {
     // Load default .env file
-    getenv.Load().Default()
-
-    // or
+    getenv.Load(false).Default()
 
     // For development environment
-    getenv.Load().Development()
+    getenv.Load(false).Development()
 
     // For production environment
-    getenv.Load().Production()
+    getenv.Load(false).Production()
+
+    // Enable dynamic updates for env
+    getenv.Load(true).Default()
 
     // For getting variables
 

@@ -12,7 +12,7 @@ func TestLoad_Default(t *testing.T) {
 	os.Clearenv()
 
 	// Run test
-	err := getenv.Load().Default()
+	err := getenv.Load(false).Default()
 	if err != nil {
 		t.Errorf("Load().Default() returned error: %v", err)
 	}
@@ -42,7 +42,7 @@ func TestLoad_NonExistentFile(t *testing.T) {
 	os.Clearenv()
 
 	// Test in production mode (.env.production file doesn't exist)
-	err := getenv.Load().Production()
+	err := getenv.Load(false).Production()
 	if err != nil {
 		t.Errorf("Should not return error for non-existent file: %v", err)
 	}
@@ -56,7 +56,7 @@ func TestLoad_DuplicateEnvironmentVariables(t *testing.T) {
 	os.Setenv("PORT", "3000")
 
 	// Load .env file
-	err := getenv.Load().Default()
+	err := getenv.Load(false).Default()
 	if err != nil {
 		t.Errorf("Load().Default() returned error: %v", err)
 	}
@@ -67,12 +67,31 @@ func TestLoad_DuplicateEnvironmentVariables(t *testing.T) {
 	}
 }
 
+func TestLoad_UpdateEnvironmentVariables(t *testing.T) {
+	// Clean environment before test
+	os.Clearenv()
+
+	// Set initial value
+	os.Setenv("PORT", "3000")
+
+	// Load .env file
+	err := getenv.Load(true).Default()
+	if err != nil {
+		t.Errorf("Load().Default() returned error: %v", err)
+	}
+
+	// Verify that the value is updated
+	if got := os.Getenv("PORT"); got != "8080" {
+		t.Errorf("PORT = %v, want 8080", got)
+	}
+}
+
 func TestLoad_Development(t *testing.T) {
 	// Clean environment before test
 	os.Clearenv()
 
 	// Run test
-	err := getenv.Load().Development()
+	err := getenv.Load(false).Development()
 	if err != nil {
 		t.Errorf("Load().Development() returned error: %v", err)
 	}
@@ -102,7 +121,7 @@ func TestLoad_Production(t *testing.T) {
 	os.Clearenv()
 
 	// Run test
-	err := getenv.Load().Production()
+	err := getenv.Load(false).Production()
 	if err != nil {
 		t.Errorf("Load().Production() returned error: %v", err)
 	}
