@@ -13,10 +13,6 @@ type Loader struct {
 	Update   bool
 }
 
-const (
-	Platform = iota
-)
-
 func Load(update bool) *Loader {
 	return &Loader{
 		Update: update,
